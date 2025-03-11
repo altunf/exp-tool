@@ -6,7 +6,7 @@ import { useFlowStore } from "@/store/use-flow-store";
 export function InstructionNode({ data, id }: any) {
   const {runnerBackgroundColor} = useFlowStore()
   return (
-    <Card className="w-64 shadow-md p-0">
+    <Card className="w-64 shadow-md p-0 overflow-hidden">
       <Handle
         type="target"
         position={Position.Top}
@@ -19,14 +19,14 @@ export function InstructionNode({ data, id }: any) {
         id="left"
         className="w-2 h-2 !bg-green-500"
       />
-      <CardHeader className="bg-purple-50 p-3">
+      <CardHeader className="bg-purple-100 p-3">
         <CardTitle className="text-sm flex items-center gap-2">
           <FileText size={16} />
           Instructions
           <span className="text-xs text-gray-500 ml-auto">{id}</span>
         </CardTitle>
       </CardHeader>
-      <CardContent  className="p-3"
+      <CardContent className="p-3"
         style={{ backgroundColor: runnerBackgroundColor }}>
         <div className="space-y-2">
           <div
@@ -34,7 +34,10 @@ export function InstructionNode({ data, id }: any) {
             style={{ color: data.textColor || "inherit" }}
           >
             {data.text ? (
-              <p className="line-clamp-3">{data.text}</p>
+              <div 
+                className="line-clamp-3 prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: data.text }}
+              />
             ) : (
               <p className="text-gray-400">No instructions set</p>
             )}

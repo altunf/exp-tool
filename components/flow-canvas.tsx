@@ -8,9 +8,24 @@ import {
   ConnectionLineType,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { nodeTypes } from "./node-types";
 import { useFlowStore } from "@/store/use-flow-store";
 import CustomEdge from "./custom-edge";
+
+
+import { StimulusNode } from "./nodes/stimulus-node"
+import { SoundNode } from "./nodes/sound-node"
+import { ResponseNode } from "./nodes/response-node"
+import { InstructionNode } from "./nodes/instruction-node"
+
+const nodeTypes = {
+  stimulus: StimulusNode,
+  response: ResponseNode,
+  instruction: InstructionNode,
+  sound: SoundNode,
+}
+const edgeTypes = {
+  custom: CustomEdge,
+}
 
 export function FlowCanvas() {
   const {
@@ -25,9 +40,7 @@ export function FlowCanvas() {
     setSelectedNode,
   } = useFlowStore();
 
-  const edgeTypes = useMemo(() => ({
-    custom: CustomEdge,
-  }), []);
+
 
   const handleNodeClick = (event: React.MouseEvent, node: any) => {
     setSelectedNode(node);

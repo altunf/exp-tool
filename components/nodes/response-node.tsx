@@ -4,10 +4,10 @@ import { Handle, Position } from "@xyflow/react"
 
 export function ResponseNode({ data, id }:any) {
   return (
-    <Card className="w-64 shadow-md p-0">
+    <Card className="w-64 shadow-md p-0 overflow-hidden">
     <Handle type="target" position={Position.Top} id="top" className="w-2 h-2 !bg-blue-500" />
     <Handle type="target" position={Position.Left} id="left" className="w-2 h-2 !bg-green-500" />
-      <CardHeader className="bg-green-50 p-3">
+      <CardHeader className="bg-green-100 p-3">
         <CardTitle className="text-sm flex items-center gap-2">
           <MessageSquare size={16} />
           Response Collection

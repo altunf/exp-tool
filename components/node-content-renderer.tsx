@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import type { ExperimentNode } from "@/types/node-types"
+import { useEffect } from "react"
 
 type NodeContentRendererProps = {
   node: ExperimentNode
@@ -10,13 +11,13 @@ type NodeContentRendererProps = {
   getPositionStyle: (position: string) => React.CSSProperties
 }
 
-export function NodeContentRenderer({ node, isPaused, handleSkip, getPositionStyle }: NodeContentRendererProps) {
+export function NodeContentRenderer({ node, isPaused, handleSkip, getPositionStyle }) {
   if (!node) return null
 
   const nodeRenderers = {
     stimulus: () => (
-      <div className={`absolute`} style={getPositionStyle(node.data.position || "center")}>
-        {node.data.imageUrl ? (
+      <div className={`absolute`} style={getPositionStyle(typeof node.data.position === 'string' ? node.data.position : "center")}>
+        {typeof node.data.imageUrl === 'string' ? (
           <div className="relative">
             <img
               src={node.data.imageUrl || "/placeholder.svg"}
@@ -30,40 +31,59 @@ export function NodeContentRenderer({ node, isPaused, handleSkip, getPositionSty
       </div>
     ),
 
-    sound: () => (
-      <div className={`flex flex-col items-center justify-center h-64`}>
-        <div className="text-xl mb-4">🔊 Sound Stimulus</div>
-        {node.data.audioUrl ? (
-          <audio
-            src={node.data.audioUrl}
-            autoPlay={!isPaused}
-            loop={node.data.loop}
-            controls
-            style={{ width: "80%" }}
-          />
-        ) : (
-          <div className="text-gray-400">No audio available</div>
-        )}
-      </div>
-    ),
+    sound: () => {
+      // Play audio but don't show any visual elements
+      useEffect(() => {
+        if (!isPaused && typeof node.data.audioUrl === 'string') {
+          const audio = new Audio(node.data.audioUrl);
+          audio.play();
+          
+          return () => {
+            audio.pause();
+            audio.currentTime = 0;
+          };
+        }
+      }, [node.data.audioUrl, isPaused]);
+      
+      // Return null to make the sound node invisible
+      return null;
+    },
 
-    instruction: () => (
-      <div className={`flex flex-col items-center justify-center h-64`}>
-        <div className="text-lg mb-4 max-w-lg text-center" style={{ color: node.data.textColor || "inherit" }}>
-          {node.data.text || "No instructions provided"}
+    instruction: () => {
+      const position = typeof node.data.position === 'string' ? node.data.position : "center";
+      const positionStyle = getPositionStyle(position);
+      
+      return (
+        <div 
+          className="absolute"
+          style={positionStyle}
+        >
+          {typeof node.data.text === 'string' ? (
+            <div 
+              className="prose prose-sm max-w-xl"
+              style={{ color: typeof node.data.textColor === 'string' ? node.data.textColor : "inherit" }}
+              dangerouslySetInnerHTML={{ __html: node.data.text }}
+            />
+          ) : (
+            <div className="text-gray-400">No instructions provided</div>
+          )}
+          
+          {Boolean(node.data.showContinueButton) && (
+            <Button 
+              className="mt-4" 
+              onClick={handleSkip}
+            >
+              Continue
+            </Button>
+          )}
         </div>
-        {node.data.showContinueButton && (
-          <Button onClick={handleSkip} className="mt-4">
-            Continue
-          </Button>
-        )}
-      </div>
-    ),
+      );
+    },
 
     response: () => (
       <div className="flex flex-col items-center justify-center h-64">
         <div className="text-xl mb-4">Waiting for response...</div>
-        <div className="text-lg mb-8">Response type: {node.data.responseType}</div>
+        <div className="text-lg mb-8">Response type: {typeof node.data.responseType === 'string' ? node.data.responseType : 'unknown'}</div>
         <div className="flex gap-4">
           {node.data.responseType === "button" && (
             <>
@@ -81,10 +101,8 @@ export function NodeContentRenderer({ node, isPaused, handleSkip, getPositionSty
         </div>
       </div>
     ),
-
   }
 
-  // Use the renderer from the map or return default content
   const renderer = nodeRenderers[node.type]
   return renderer ? renderer() : <div>Unknown node type</div>
 }

@@ -3,38 +3,27 @@ import { ImageIcon } from "lucide-react"
 import { Handle, Position } from "@xyflow/react"
 
 export function StimulusNode({ data, id }:any) {
-  // Determine position class based on data
   const getPositionClass = () => {
     switch (data.position) {
-      case "top-left":
-        return "justify-start items-start"
       case "top":
         return "justify-center items-start"
-      case "top-right":
-        return "justify-end items-start"
       case "left":
         return "justify-start items-center"
       case "right":
         return "justify-end items-center"
-      case "bottom-left":
-        return "justify-start items-end"
       case "bottom":
         return "justify-center items-end"
-      case "bottom-right":
-        return "justify-end items-end"
       case "center":
       default:
         return "justify-center items-center"
     }
   }
 
-
-
   return (
-    <Card className="w-64 shadow-md p-0">
+    <Card className="w-64 shadow-md p-0 overflow-hidden">
       <Handle type="target" position={Position.Top} id="top" className="w-2 h-2 !bg-blue-500" />
       <Handle type="target" position={Position.Left} id="left" className="w-2 h-2 !bg-green-500" />
-      <CardHeader className="bg-blue-50 p-3">
+      <CardHeader className="bg-blue-100 p-3 ">
         <CardTitle className="text-sm flex items-center gap-2">
           <ImageIcon size={16} />
           Visual Stimulus
