@@ -8,13 +8,17 @@ import {
 import type { FlowStore } from "@/types/store-types";
 import type { ExperimentNode, ExperimentNodeData } from "@/types/node-types";
 
+// Add this interface for the adjacency list
+interface AdjacencyList {
+  [key: string]: string[];
+}
+
 export const useFlowStore = create<FlowStore>((set, get) => ({
   nodes: [],
   edges: [],
   nodeCounter: 0,
   reactFlowInstance: null,
   selectedNode: null,
-  leftSidebarOpen: true,
   rightPanelOpen: false,
   isRunning: false,
   currentRunningNodeIndex: 0,
@@ -22,7 +26,6 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
 
   setSelectedNode: (node) =>
     set({ selectedNode: node, rightPanelOpen: !!node }),
-  setLeftSidebarOpen: (open) => set({ leftSidebarOpen: open }),
   setRightPanelOpen: (open) => set({ rightPanelOpen: open }),
   setReactFlowInstance: (instance) => set({ reactFlowInstance: instance }),
   setIsRunning: (isRunning) => set({ isRunning, currentRunningNodeIndex: 0 }),
@@ -203,44 +206,6 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
     }));
   },
 
-  addNodeToGroup: (groupId, nodeToAdd) => {
-    set((state) => ({
-      nodes: state.nodes.map((node) => {
-        if (node.id === groupId && node.type === "group") {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              childNodes: [
-                ...(node.data.childNodes as ExperimentNode[]),
-                nodeToAdd,
-              ],
-            },
-          };
-        }
-        return node;
-      }),
-    }));
-  },
-
-  removeNodeFromGroup: (groupId, nodeIdToRemove) => {
-    set((state) => ({
-      nodes: state.nodes.map((node) => {
-        if (node.id === groupId && node.type === "group") {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              childNodes: (node.data.childNodes as ExperimentNode[]).filter(
-                (childNode) => childNode.id !== nodeIdToRemove
-              ),
-            },
-          };
-        }
-        return node;
-      }),
-    }));
-  },
 
   handleFileUpload: (event, nodeId, fileType) => {
     const file = event.target.files?.[0];
@@ -381,7 +346,7 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
     const nodeMap = new Map(nodes.map(node => [node.id, node]));
     
     // Create adjacency list for the graph
-    const adjacencyList = {};
+    const adjacencyList: AdjacencyList = {};
     edges.forEach(edge => {
       if (!adjacencyList[edge.source]) {
         adjacencyList[edge.source] = [];
@@ -390,7 +355,7 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
     });
     
     // Function to check if connection is vertical (one node above/below another)
-    const isVerticalConnection = (sourceNode, targetNode) => {
+    const isVerticalConnection = (sourceNode: ExperimentNode, targetNode: ExperimentNode) => {
       // Check if nodes are roughly aligned vertically (similar X, different Y)
       const xDiff = Math.abs(sourceNode.position.x - targetNode.position.x);
       const yDiff = Math.abs(sourceNode.position.y - targetNode.position.y);
@@ -400,11 +365,11 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
     };
     
     // Process the graph to create sequential groups
-    const sequentialGroups = [];
-    const visited = new Set();
+    const sequentialGroups: ExperimentNode[][] = [];
+    const visited = new Set<string>();
     
     // Process a node and its vertical connections as a group
-    const processNodeGroup = (nodeId) => {
+    const processNodeGroup = (nodeId: string) => {
       if (visited.has(nodeId)) return null;
       
       const currentNode = nodeMap.get(nodeId);
@@ -417,7 +382,7 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
       const group = [currentNode];
       
       // Find all vertically connected nodes (should run simultaneously)
-      const findVerticalConnections = (id) => {
+      const findVerticalConnections = (id: string) => {
         if (!adjacencyList[id]) return;
         
         adjacencyList[id].forEach(targetId => {
@@ -427,7 +392,7 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
           if (!targetNode) return;
           
           // If vertically connected, add to current group
-          if (isVerticalConnection(nodeMap.get(id), targetNode)) {
+          if (isVerticalConnection(nodeMap.get(id)!, targetNode)) {
             group.push(targetNode);
             visited.add(targetId);
             // Continue finding vertical connections from this node
@@ -443,8 +408,8 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
     };
     
     // Process nodes in horizontal sequence
-    const processHorizontalSequence = (startNodeId) => {
-      let currentNodeId = startNodeId;
+    const processHorizontalSequence = (startNodeId: string) => {
+      let currentNodeId: string | null = startNodeId;
       
       while (currentNodeId) {
         // Process this node and its vertical connections as a group
@@ -454,7 +419,7 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
         }
         
         // Find the next horizontal node
-        let nextNodeId = null;
+        let nextNodeId: string | null = null;
         
         if (adjacencyList[currentNodeId]) {
           // Look for any unvisited connection

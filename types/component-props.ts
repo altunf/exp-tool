@@ -9,16 +9,12 @@ export interface PropertyPanelProps {
   selectedNode: ExperimentNode
   deleteNode: () => void
   nodes: ExperimentNode[]
-  addNodeToGroup: (groupId: string, nodeToAdd: ExperimentNode) => void
-  removeNodeFromGroup: (groupId: string, nodeIdToRemove: string) => void
   onClose: () => void
 }
 
 export interface NodePanelRendererProps {
   node: ExperimentNode
   nodes: ExperimentNode[]
-  addNodeToGroup: (groupId: string, nodeToAdd: ExperimentNode) => void
-  removeNodeFromGroup: (groupId: string, nodeIdToRemove: string) => void
 }
 
 export interface ExperimentRunnerProps {
@@ -43,10 +39,4 @@ export interface SoundPanelProps {
   node: ExperimentNode
 }
 
-export interface GroupPanelProps {
-  node: ExperimentNode
-  nodes: ExperimentNode[]
-  addNodeToGroup: (groupId: string, nodeToAdd: ExperimentNode) => void
-  removeNodeFromGroup: (groupId: string, nodeIdToRemove: string) => void
-}
 

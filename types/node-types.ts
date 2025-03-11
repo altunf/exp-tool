@@ -33,13 +33,7 @@ export interface SoundNodeData extends BaseNodeData {
   audioType?: string
 }
 
-export interface GroupNodeData extends BaseNodeData {
-  label: string
-  childNodes: Node[]
-  duration: number
-  width: number
-  height: number
-}
+
 
 export type ExperimentNodeData = {
   [key: string]: unknown
@@ -48,10 +42,9 @@ export type ExperimentNodeData = {
   | ResponseNodeData
   | InstructionNodeData
   | SoundNodeData
-  | GroupNodeData
 )
 
 export interface ExperimentNode extends Node<ExperimentNodeData> {
-  type: "stimulus" | "response" | "instruction" | "sound" | "group"
+  type: "stimulus" | "response" | "instruction" | "sound" 
 }
 

@@ -2,18 +2,13 @@
 
 import * as React from "react"
 import {
-  BookOpen,
-  Bot,
   Command,
   FileText,
   ImageIcon,
   Layers,
-  LifeBuoy,
   MessageSquare,
   Music,
   Send,
-  Settings2,
-  SquareTerminal,
 } from "lucide-react"
 import {
   Sidebar,
@@ -53,12 +48,6 @@ const data = {
       icon: Music,
       type: "sound"
     },
-    {
-        title: "Group",
-        hover: "gray",
-        icon: Layers,
-        type: "group"
-      },
   ],
   navSecondary: [
 /*     {

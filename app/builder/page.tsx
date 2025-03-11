@@ -17,16 +17,9 @@ import { FlowCanvas } from "@/components/flow-canvas";
 import { PropertyPanel } from "@/components/panels/property-panel";
 import { useFlowStore } from "@/store/use-flow-store";
 import { Button } from "@/components/ui/button";
-import { Save, Play, ArrowLeft, Settings, Menu } from "lucide-react";
-import Link from "next/link";
+import { Menu } from "lucide-react";
 import { ExperimentRunner } from "@/components/experiment-runner";
-import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
+import { BuilderToolbar } from "@/components/builder-toolbar";
 
 export default function BuilderPage() {
   const [experimentName, setExperimentName] = useState("New Experiment");
@@ -41,11 +34,7 @@ export default function BuilderPage() {
     setRunnerBackgroundColor,
     setRightPanelOpen,
     deleteNode,
-    addNodeToGroup,
-    removeNodeFromGroup,
-    handleStartExperiment,
     handleStopExperiment,
-    saveExperiment,
   } = useFlowStore();
 
   useEffect(() => {
@@ -62,53 +51,6 @@ export default function BuilderPage() {
   if (isRunning) {
     return <ExperimentRunner onStop={handleStopExperiment} />;
   }
-
-  const toolbar = (
-    <div className="flex flex-row gap-2">
-      <Button variant="outline" onClick={saveExperiment}>
-        <Save className="mr-1 h-4 w-4" /> Save
-      </Button>
-      <Button onClick={handleStartExperiment}>
-        <Play className="mr-1 h-4 w-4" color="green"/> Run
-      </Button>
-      <Button variant="outline" asChild>
-        <Link href="/experiments">
-          <ArrowLeft className="h-4 w-4 mr-1" /> Back to Experiments
-        </Link>
-      </Button>
-      {/* Settings */}
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline">
-            <Settings className="h-4 w-4 mr-1" /> Settings
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-80">
-          <div className="space-y-4">
-            <h4 className="font-medium">Experiment Settings</h4>
-            <div className="space-y-2">
-              <Label htmlFor="bgColor">Runner Background Color</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="bgColor"
-                  type="color"
-                  value={runnerBackgroundColor}
-                  onChange={(e) => setRunnerBackgroundColor(e.target.value)}
-                  className="w-12 h-8 p-1"
-                />
-                <Input
-                  type="text"
-                  value={runnerBackgroundColor}
-                  onChange={(e) => setRunnerBackgroundColor(e.target.value)}
-                  className="flex-1"
-                />
-              </div>
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
 
   return (
     <SidebarProvider>
@@ -128,7 +70,12 @@ export default function BuilderPage() {
                   {experimentName}
                 </BreadcrumbItem>
                 <BreadcrumbItem className="hidden md:block ml-auto">
-                  {toolbar}
+                  <BuilderToolbar 
+                    experimentName={experimentName}
+                    setExperimentName={setExperimentName}
+                    runnerBackgroundColor={runnerBackgroundColor}
+                    setRunnerBackgroundColor={setRunnerBackgroundColor}
+                  />
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -144,8 +91,6 @@ export default function BuilderPage() {
             selectedNode={selectedNode}
             deleteNode={handleDeleteSelectedNode}
             nodes={nodes}
-            addNodeToGroup={addNodeToGroup}
-            removeNodeFromGroup={removeNodeFromGroup}
             onClose={() => setRightPanelOpen(false)}
           />
         </div>

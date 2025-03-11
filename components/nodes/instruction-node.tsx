@@ -5,7 +5,6 @@ import { useFlowStore } from "@/store/use-flow-store";
 
 export function InstructionNode({ data, id }: any) {
   const {runnerBackgroundColor} = useFlowStore()
-  console.log(runnerBackgroundColor)
   return (
     <Card className="w-64 shadow-md p-0">
       <Handle

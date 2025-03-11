@@ -8,7 +8,6 @@ export interface FlowState {
   nodeCounter: number
   reactFlowInstance: any | null
   selectedNode: ExperimentNode | null
-  leftSidebarOpen: boolean
   rightPanelOpen: boolean
   isRunning: boolean
   currentRunningNodeIndex: number
@@ -17,7 +16,6 @@ export interface FlowState {
 
 export interface FlowActions {
   setSelectedNode: (node: ExperimentNode | null) => void
-  setLeftSidebarOpen: (open: boolean) => void
   setRightPanelOpen: (open: boolean) => void
   setReactFlowInstance: (instance: any) => void
   setIsRunning: (isRunning: boolean) => void
@@ -30,8 +28,6 @@ export interface FlowActions {
   onDrop: (event: React.DragEvent) => void
   updateNodeData: (id: string, newData: Partial<ExperimentNodeData>) => void
   deleteNode: (nodeId: string) => void
-  addNodeToGroup: (groupId: string, nodeToAdd: ExperimentNode) => void
-  removeNodeFromGroup: (groupId: string, nodeIdToRemove: string) => void
   handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>, nodeId: string, fileType: "image" | "audio") => void
   saveExperiment: () => void
   getOrderedNodes: () => ExperimentNode[]

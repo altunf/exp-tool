@@ -23,16 +23,6 @@ export function NodeContentRenderer({ node, isPaused, handleSkip, getPositionSty
               alt="Visual Stimulus"
               className="max-h-64 max-w-full object-contain"
             />
-            {node.data.showFixationPoint && (
-              <div
-                className="absolute w-3 h-3 bg-red-500 rounded-full"
-                style={{
-                  left: "50%",
-                  top: "50%",
-                  transform: "translate(-50%, -50%)",
-                }}
-              />
-            )}
           </div>
         ) : (
           <div className="text-gray-400">No image available</div>
@@ -92,12 +82,6 @@ export function NodeContentRenderer({ node, isPaused, handleSkip, getPositionSty
       </div>
     ),
 
-    group: () => (
-      <div className="flex flex-col items-center justify-center h-64">
-        <div className="text-xl mb-4">Group: {node.data.label}</div>
-        <div className="text-gray-500">Contains {node.data.childNodes.length} nodes</div>
-      </div>
-    ),
   }
 
   // Use the renderer from the map or return default content
