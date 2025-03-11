@@ -1,70 +1,34 @@
+"use client";
 
-"use client"
+import { useState, useEffect } from "react";
+import { Upload } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
+import { useFlowStore } from "@/store/use-flow-store";
 
-import { useState, useEffect } from "react"
-import { Upload } from "lucide-react"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Button } from "@/components/ui/button"
-import { useFlowStore } from "@/store/use-flow-store"
+export function StimulusPanel({ node }:any) {
+  const { updateNodeData, handleFileUpload } = useFlowStore();
+  const [duration, setDuration] = useState(node.data.duration);
+  const [position, setPosition] = useState(node.data.position || "center");
 
-
-export function StimulusPanel({ node }) {
-  const { updateNodeData, handleFileUpload } = useFlowStore()
-  const [duration, setDuration] = useState(node.data.duration)
-  const [position, setPosition] = useState(node.data.position || "center")
-
-  // Update local state when node data changes
+  
   useEffect(() => {
-    setDuration(node.data.duration)
-    setPosition(node.data.position || "center")
-  }, [node.data.duration, node.data.position])
-
-  // Helper function to render position preview
-  const renderPositionPreview = (position) => {
-    const getPositionStyle = () => {
-      switch (position) {
-        case "top-left":
-          return { justifyContent: "flex-start", alignItems: "flex-start" }
-        case "top":
-          return { justifyContent: "center", alignItems: "flex-start" }
-        case "top-right":
-          return { justifyContent: "flex-end", alignItems: "flex-start" }
-        case "left":
-          return { justifyContent: "flex-start", alignItems: "center" }
-        case "right":
-          return { justifyContent: "flex-end", alignItems: "center" }
-        case "bottom-left":
-          return { justifyContent: "flex-start", alignItems: "flex-end" }
-        case "bottom":
-          return { justifyContent: "center", alignItems: "flex-end" }
-        case "bottom-right":
-          return { justifyContent: "flex-end", alignItems: "flex-end" }
-        case "center":
-        default:
-          return { justifyContent: "center", alignItems: "center" }
-      }
-    }
-
-    return (
-      <div className="border rounded-md w-full h-16 flex" style={getPositionStyle()}>
-        <div className="w-6 h-6 bg-blue-200 rounded"></div>
-      </div>
-    )
-  }
+    setDuration(node.data.duration);
+    setPosition(node.data.position || "center");
+  }, [node.data.duration, node.data.position]);
 
   const handleDurationChange = (value) => {
-    setDuration(value[0])
-    updateNodeData(node.id, { duration: value[0] })
-  }
+    setDuration(value[0]);
+    updateNodeData(node.id, { duration: value[0] });
+  };
 
   const handlePositionChange = (value) => {
-    setPosition(value)
-    updateNodeData(node.id, { position: value })
-  }
+    setPosition(value);
+    updateNodeData(node.id, { position: value });
+  };
 
   return (
     <div className="space-y-4">
@@ -77,18 +41,27 @@ export function StimulusPanel({ node }) {
             accept="image/*"
             onChange={(e) => handleFileUpload(e, node.id, "image")}
           />
-          <Button size="sm" onClick={() => document.getElementById("imageUpload").click()}>
+          <Button
+            size="sm"
+            onClick={() => document.getElementById("imageUpload").click()}
+          >
             <Upload className="h-4 w-4" />
           </Button>
         </div>
-        {node.data.imageName && <p className="text-sm text-gray-500 mt-1">Uploaded: {node.data.imageName}</p>}
+        {node.data.imageName && (
+          <p className="text-sm text-gray-500 mt-1">
+            Uploaded: {node.data.imageName}
+          </p>
+        )}
       </div>
       <div>
         <Label htmlFor="imageUrl">Image URL (optional)</Label>
         <Input
           id="imageUrl"
           value={node.data.imageUrl || ""}
-          onChange={(e) => updateNodeData(node.id, { imageUrl: e.target.value })}
+          onChange={(e) =>
+            updateNodeData(node.id, { imageUrl: e.target.value })
+          }
           placeholder="Enter image URL"
         />
       </div>
@@ -104,18 +77,14 @@ export function StimulusPanel({ node }) {
           className="mt-2"
         />
       </div>
-      <div className="flex items-center space-x-2">
-        <Switch
-          id="fixationPoint"
-          checked={node.data.showFixationPoint}
-          onCheckedChange={(checked) => updateNodeData(node.id, { showFixationPoint: checked })}
-        />
-        <Label htmlFor="fixationPoint">Show fixation point</Label>
-      </div>
 
       <div>
         <Label className="mb-2 block">Image Position</Label>
-        <RadioGroup value={position} onValueChange={handlePositionChange} className="grid grid-cols-3 gap-2">
+        <RadioGroup
+          value={position}
+          onValueChange={handlePositionChange}
+          className="grid grid-cols-3 gap-2"
+        >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="top-left" id="top-left" />
             <Label htmlFor="top-left">Top Left</Label>
@@ -153,13 +122,7 @@ export function StimulusPanel({ node }) {
             <Label htmlFor="bottom-right">Bottom Right</Label>
           </div>
         </RadioGroup>
-
-        <div className="mt-3 border p-2 rounded-md">
-          <Label className="text-xs mb-1 block">Preview:</Label>
-          {renderPositionPreview(position)}
-        </div>
       </div>
     </div>
-  )
+  );
 }
-

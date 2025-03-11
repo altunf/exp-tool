@@ -28,8 +28,10 @@ export function StimulusNode({ data, id }:any) {
     }
   }
 
+
+
   return (
-    <Card className="w-64 shadow-md">
+    <Card className="w-64 shadow-md p-0">
       <Handle type="target" position={Position.Top} id="top" className="w-2 h-2 !bg-blue-500" />
       <Handle type="target" position={Position.Left} id="left" className="w-2 h-2 !bg-green-500" />
       <CardHeader className="bg-blue-50 p-3">
@@ -51,16 +53,6 @@ export function StimulusNode({ data, id }:any) {
                     className="max-h-24 max-w-full object-contain"
                   />
                 </div>
-                {data.showFixationPoint && (
-                  <div
-                    className="absolute w-2 h-2 bg-red-500 rounded-full"
-                    style={{
-                      left: "50%",
-                      top: "50%",
-                      transform: "translate(-50%, -50%)",
-                    }}
-                  />
-                )}
               </div>
             ) : (
               <div className="w-full h-24 flex items-center justify-center text-gray-400 border border-dashed rounded-md">

@@ -1,27 +1,41 @@
+import { type ReactElement } from 'react'
+import { type ExperimentNode } from "@/types/node-types"
 import { StimulusPanel } from "./stimulus-panel"
 import { ResponsePanel } from "./response-panel"
 import { InstructionPanel } from "./instruction-panel"
 import { SoundPanel } from "./sound-panel"
 import { GroupPanel } from "./group-panel"
 
-// Map of node types to their panel components
-const NODE_PANELS = {
-  stimulus: StimulusPanel,
-  response: ResponsePanel,
-  instruction: InstructionPanel,
-  sound: SoundPanel,
-  group: GroupPanel,
+interface BasePanelProps {
+  node: ExperimentNode;
 }
 
-export function NodePanelRenderer({ node, nodes, addNodeToGroup, removeNodeFromGroup }) {
-  // Get the appropriate panel component for this node type
-  const PanelComponent = NODE_PANELS[node.type]
+interface GroupPanelProps extends BasePanelProps {
+  nodes: ExperimentNode[];
+  addNodeToGroup: (groupId: string, node: ExperimentNode) => void;
+  removeNodeFromGroup: (groupId: string, nodeId: string) => void;
+}
+
+const NODE_PANELS = {
+  "stimulus": StimulusPanel,
+  "response": ResponsePanel,
+  "instruction": InstructionPanel,
+  "sound": SoundPanel,
+  "group": GroupPanel,
+} as const
+
+export function NodePanelRenderer({ 
+  node, 
+  nodes, 
+  addNodeToGroup, 
+  removeNodeFromGroup 
+}: GroupPanelProps): ReactElement {
+  const PanelComponent = NODE_PANELS[node.type as keyof typeof NODE_PANELS]
 
   if (!PanelComponent) {
     return <p>No properties available for this node type.</p>
   }
 
-  // Render the panel with appropriate props
   if (node.type === "group") {
     return (
       <PanelComponent
@@ -33,6 +47,11 @@ export function NodePanelRenderer({ node, nodes, addNodeToGroup, removeNodeFromG
     )
   }
 
-  return <PanelComponent node={node} />
+  return <PanelComponent 
+    node={node}
+    nodes={nodes}
+    addNodeToGroup={addNodeToGroup}
+    removeNodeFromGroup={removeNodeFromGroup}
+  />
 }
 

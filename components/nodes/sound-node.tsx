@@ -4,7 +4,7 @@ import { Handle, Position } from "@xyflow/react"
 
 export function SoundNode({ data, id }:any) {
   return (
-    <Card className="w-64 shadow-md">
+    <Card className="w-64 shadow-md p-0">
       <Handle type="target" position={Position.Top} id="top" className="w-2 h-2 !bg-blue-500" />
       <Handle type="target" position={Position.Left} id="left" className="w-2 h-2 !bg-green-500" />
       <CardHeader className="bg-amber-50 p-3">

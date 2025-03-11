@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { useFlowStore } from "@/store/use-flow-store"
 
-export function SoundPanel({ node }) {
+export function SoundPanel({ node }:any) {
   const { updateNodeData, handleFileUpload } = useFlowStore()
   const [delay, setDelay] = useState(node.data.delay || 0)
   const [duration, setDuration] = useState(node.data.duration)

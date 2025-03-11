@@ -1,13 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { useFlowStore } from "@/store/use-flow-store"
 import { Play, Pause, SkipForward, StopCircle, ArrowLeft, Settings } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import type { ExperimentNode } from "@/types/node-types"
+import { NodeContentRenderer } from "@/components/node-content-renderer"
 
 export function ExperimentRunner({ onStop }) {
   const { getNodeGroups, currentRunningNodeIndex, handleNextNode, runnerBackgroundColor, setRunnerBackgroundColor } =
@@ -17,63 +17,81 @@ export function ExperimentRunner({ onStop }) {
   const [timeRemaining, setTimeRemaining] = useState(0)
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null)
   const [bgColor, setBgColor] = useState(runnerBackgroundColor)
+  
+  // Initialize node groups only once with useMemo to prevent recalculation
+  const nodeGroups = React.useMemo(() => getNodeGroups(), []);
+  
+  // Make sure we have a valid current group, even if it's empty
+  const currentGroup = nodeGroups[currentRunningNodeIndex] || [];
 
-  const nodeGroups = getNodeGroups()
-  const currentGroup = nodeGroups[currentRunningNodeIndex] || []
-
+  // Update background color when it changes in the store
   useEffect(() => {
     setBgColor(runnerBackgroundColor)
   }, [runnerBackgroundColor])
 
+  // Handle timing for the current group of nodes
   useEffect(() => {
-    if (isPaused || currentGroup.length === 0) return
+    if (isPaused) return;
+    if (currentGroup.length === 0) {
+      // If the current group is empty, move to the next one
+      setTimeout(() => handleNextNode(), 100);
+      return;
+    }
 
+    // Clear any existing interval
     if (intervalId) {
       clearInterval(intervalId)
+      setIntervalId(null)
     }
 
+    // Find the maximum duration among all nodes in the current group
     const maxDuration = Math.max(
       ...currentGroup.map((node) => {
+        if (!node) return 1000; // Default if node is undefined
+        
         if (node.type === "stimulus" || node.type === "sound" || node.type === "group") {
-          return node.data.duration
+          return node.data?.duration || 1000; // Default to 1000ms if not specified
         } else if (node.type === "response") {
-          return node.data.timeout
-        } else if (node.type === "instruction" && !node.data.showContinueButton) {
-          return 5000 // Default 5 seconds for instructions without continue button
+          return node.data?.timeout || 5000; // Default to 5000ms if not specified
+        } else if (node.type === "instruction" && !node.data?.showContinueButton) {
+          return node.data?.duration || 3000; // Default to 3000ms for instructions
         }
-        return 0
+        return 1000; // Default duration
       }),
-    )
+      1000 // Ensure at least 1000ms minimum duration
+    );
 
-    setTimeRemaining(maxDuration)
+    setTimeRemaining(maxDuration);
 
-    if (maxDuration > 0) {
-      const id = setInterval(() => {
-        setTimeRemaining((prev) => {
-          if (prev <= 100) {
-            clearInterval(id)
-            setTimeout(() => {
-              handleNextNode()
-            }, 0)
-            return 0
-          }
-          return prev - 100
-        })
-      }, 100)
+    // Use a single timeout instead of interval + safety timeout
+    const timeoutId = setTimeout(() => {
+      handleNextNode();
+    }, maxDuration);
 
-      setIntervalId(id)
+    setIntervalId(timeoutId);
 
-      return () => clearInterval(id)
-    }
-  }, [currentGroup, isPaused, handleNextNode])
+    // Update time remaining with a separate effect
+    const displayId = setInterval(() => {
+      setTimeRemaining((prev) => {
+        const newTime = prev - 100;
+        return newTime > 0 ? newTime : 0;
+      });
+    }, 100);
 
+    return () => {
+      clearTimeout(timeoutId);
+      clearInterval(displayId);
+    };
+  }, [currentRunningNodeIndex, isPaused]); // Reduced dependencies
+
+  // Clean up intervals when component unmounts
   useEffect(() => {
     return () => {
       if (intervalId) {
-        clearInterval(intervalId)
+        clearInterval(intervalId);
       }
-    }
-  }, [intervalId])
+    };
+  }, [intervalId]);
 
   const handlePauseResume = () => {
     setIsPaused((prev) => !prev)
@@ -114,105 +132,6 @@ export function ExperimentRunner({ onStop }) {
       case "center":
       default:
         return { top: "50%", left: "50%", transform: "translate(-50%, -50%)" }
-    }
-  }
-
-  const renderNodeContent = (node: ExperimentNode) => {
-    if (!node) return null
-
-    switch (node.type) {
-      case "stimulus":
-        return (
-          <div className={`absolute`} style={getPositionStyle(node.data.position || "center")}>
-            {node.data.imageUrl ? (
-              <div className="relative">
-                <img
-                  src={node.data.imageUrl || "/placeholder.svg"}
-                  alt="Visual Stimulus"
-                  className="max-h-64 max-w-full object-contain"
-                />
-                {node.data.showFixationPoint && (
-                  <div
-                    className="absolute w-3 h-3 bg-red-500 rounded-full"
-                    style={{
-                      left: "50%",
-                      top: "50%",
-                      transform: "translate(-50%, -50%)",
-                    }}
-                  />
-                )}
-              </div>
-            ) : (
-              <div className="text-gray-400">No image available</div>
-            )}
-          </div>
-        )
-
-      case "sound":
-        return (
-          <div className={`flex flex-col items-center justify-center h-64`}>
-            <div className="text-xl mb-4">🔊 Sound Stimulus</div>
-            {node.data.audioUrl ? (
-              <audio
-                src={node.data.audioUrl}
-                autoPlay={!isPaused}
-                loop={node.data.loop}
-                controls
-                style={{ width: "80%" }}
-              />
-            ) : (
-              <div className="text-gray-400">No audio available</div>
-            )}
-          </div>
-        )
-
-      case "instruction":
-        return (
-          <div className={`flex flex-col items-center justify-center h-64`}>
-            <div className="text-lg mb-4 max-w-lg text-center" style={{ color: node.data.textColor || "inherit" }}>
-              {node.data.text || "No instructions provided"}
-            </div>
-            {node.data.showContinueButton && (
-              <Button onClick={handleSkip} className="mt-4">
-                Continue
-              </Button>
-            )}
-          </div>
-        )
-
-      case "response":
-        return (
-          <div className="flex flex-col items-center justify-center h-64">
-            <div className="text-xl mb-4">Waiting for response...</div>
-            <div className="text-lg mb-8">Response type: {node.data.responseType}</div>
-            <div className="flex gap-4">
-              {node.data.responseType === "button" && (
-                <>
-                  <Button onClick={handleSkip}>Yes</Button>
-                  <Button variant="outline" onClick={handleSkip}>
-                    No
-                  </Button>
-                </>
-              )}
-              {node.data.responseType !== "button" && (
-                <div className="text-gray-500">
-                  {node.data.responseType === "keyboard" ? "Press any key to continue" : "Click anywhere to continue"}
-                </div>
-              )}
-            </div>
-          </div>
-        )
-
-      case "group":
-        return (
-          <div className="flex flex-col items-center justify-center h-64">
-            <div className="text-xl mb-4">Group: {node.data.label}</div>
-            <div className="text-gray-500">Contains {node.data.childNodes.length} nodes</div>
-          </div>
-        )
-
-      default:
-        return <div>Unknown node type</div>
     }
   }
 
@@ -264,11 +183,24 @@ export function ExperimentRunner({ onStop }) {
       </div>
 
       <div className="flex-1 relative">
-        {currentGroup.map((node, index) => (
-          <div key={node.id} className="absolute inset-0">
-            {renderNodeContent(node)}
+        {currentGroup.length === 0 ? (
+          <div className="absolute inset-0 flex items-center justify-center text-lg text-gray-500">
+            No nodes to display in this group
           </div>
-        ))}
+        ) : (
+          currentGroup.map((node, index) => (
+            node ? (
+              <div key={node.id || index} className="absolute inset-0">
+                <NodeContentRenderer 
+                  node={node} 
+                  isPaused={isPaused} 
+                  handleSkip={handleSkip} 
+                  getPositionStyle={getPositionStyle} 
+                />
+              </div>
+            ) : null
+          ))
+        )}
 
         {timeRemaining > 0 && (
           <div className="absolute top-4 right-4 bg-white/80 px-3 py-1 rounded-full text-sm">

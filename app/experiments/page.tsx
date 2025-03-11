@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function ExperimentsPage() {
-  // Sample data - would normally be fetched from a database
   const experiments = [
     { id: 1, title: "Visual Perception Test", updatedAt: "2023-05-15" },
     { id: 2, title: "Auditory Response Time", updatedAt: "2023-06-22" },

@@ -7,7 +7,6 @@ export interface BaseNodeData {
 export interface StimulusNodeData extends BaseNodeData {
   imageUrl: string
   duration: number
-  showFixationPoint: boolean
   position: "top-left" | "top" | "top-right" | "left" | "center" | "right" | "bottom-left" | "bottom" | "bottom-right"
   imageName?: string
 }
@@ -42,12 +41,15 @@ export interface GroupNodeData extends BaseNodeData {
   height: number
 }
 
-export type ExperimentNodeData =
+export type ExperimentNodeData = {
+  [key: string]: unknown
+} & (
   | StimulusNodeData
   | ResponseNodeData
   | InstructionNodeData
   | SoundNodeData
   | GroupNodeData
+)
 
 export interface ExperimentNode extends Node<ExperimentNodeData> {
   type: "stimulus" | "response" | "instruction" | "sound" | "group"
