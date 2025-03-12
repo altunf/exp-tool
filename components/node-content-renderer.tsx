@@ -11,7 +11,7 @@ type NodeContentRendererProps = {
   getPositionStyle: (position: string) => React.CSSProperties
 }
 
-export function NodeContentRenderer({ node, isPaused, handleSkip, getPositionStyle }) {
+export function NodeContentRenderer({ node, isPaused, handleSkip, getPositionStyle }:NodeContentRendererProps) {
   if (!node) return null
 
   const nodeRenderers = {
@@ -32,7 +32,7 @@ export function NodeContentRenderer({ node, isPaused, handleSkip, getPositionSty
     ),
 
     sound: () => {
-      // Play audio but don't show any visual elements
+
       useEffect(() => {
         if (!isPaused && typeof node.data.audioUrl === 'string') {
           const audio = new Audio(node.data.audioUrl);
@@ -45,7 +45,6 @@ export function NodeContentRenderer({ node, isPaused, handleSkip, getPositionSty
         }
       }, [node.data.audioUrl, isPaused]);
       
-      // Return null to make the sound node invisible
       return null;
     },
 

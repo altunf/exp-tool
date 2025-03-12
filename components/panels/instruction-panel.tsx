@@ -6,14 +6,17 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { useFlowStore } from "@/store/use-flow-store";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { RichTextEditor } from "@/components/ui/rich-text-editor"; // Updated import path
+import { RichTextEditor } from "@/components/rich-text-editor";
 import { PositionSelector } from "@/components/position-selector";
+import { ResponseCollection } from "@/components/response-collection";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export function InstructionPanel({ node }:any) {
+export function InstructionPanel({ node, isActive, onResponseCollected }:any) {
   const { updateNodeData } = useFlowStore();
   const [text, setText] = useState(node.data.text || "");
   const [textColor, setTextColor] = useState(node.data.textColor || "#ffffff");
   const [position, setPosition] = useState(node.data.position || "center");
+  const [fontSize, setFontSize] = useState(node.data.fontSize || "16px");
 
   // Position options
   const positionOptions = [
@@ -26,6 +29,14 @@ export function InstructionPanel({ node }:any) {
     { value: "bottom-right", label: "Bottom Right" },
     { value: "left", label: "Left" },
     { value: "right", label: "Right" },
+  ];
+
+  // Font size options
+  const fontSizeOptions = [
+    { value: "12px", label: "Small" },
+    { value: "16px", label: "Medium" },
+    { value: "20px", label: "Large" },
+    { value: "24px", label: "X-Large" },
   ];
 
   // Rest of your color options
@@ -43,7 +54,8 @@ export function InstructionPanel({ node }:any) {
     setText(node.data.text || "");
     setTextColor(node.data.textColor || "#ffffff");
     setPosition(node.data.position || "center");
-  }, [node.data.text, node.data.textColor, node.data.position]);
+    setFontSize(node.data.fontSize || "16px");
+  }, [node.data.text, node.data.textColor, node.data.position, node.data.fontSize]);
 
   const handleTextChange = (newText) => {
     setText(newText);
@@ -60,6 +72,11 @@ export function InstructionPanel({ node }:any) {
     updateNodeData(node.id, { textColor: value });
   };
 
+  const handleFontSizeChange = (value) => {
+    setFontSize(value);
+    updateNodeData(node.id, { fontSize: value });
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -70,6 +87,26 @@ export function InstructionPanel({ node }:any) {
             onChange={handleTextChange} 
           />
         </div>
+      </div>
+
+      {/* Font Size Selector */}
+      <div>
+        <Label htmlFor="fontSize">Text Size</Label>
+        <Select 
+          value={fontSize} 
+          onValueChange={handleFontSizeChange}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select text size" />
+          </SelectTrigger>
+          <SelectContent>
+            {fontSizeOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Position selector component */}
@@ -117,10 +154,11 @@ export function InstructionPanel({ node }:any) {
           </div>
         </div>
         
-        <div className="mt-2 p-2 border rounded" style={{ color: textColor }}>
+        <div className="mt-2 p-2 border rounded">
           <div 
             className="text-sm"
             dangerouslySetInnerHTML={{ __html: text }}
+            style={{ color: textColor, fontSize: fontSize }}
           />
         </div>
       </div>
@@ -135,6 +173,15 @@ export function InstructionPanel({ node }:any) {
         />
         <Label htmlFor="continueButton">Show continue button</Label>
       </div>
+      
+      {/* Add Response Collection component */}
+      <ResponseCollection 
+        nodeId={node.id} 
+        nodeData={node.data} 
+        updateNodeData={updateNodeData}
+        isActive={isActive}
+        onResponseCollected={onResponseCollected}
+      />
     </div>
   );
 }

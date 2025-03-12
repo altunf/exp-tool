@@ -8,6 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { useFlowStore } from "@/store/use-flow-store";
 import { PositionSelector } from "@/components/position-selector";
+import { ResponseCollection } from "@/components/response-collection";
 
 const POSITION_VALUES = [
   { value: 'top', label: 'Top' },
@@ -17,7 +18,7 @@ const POSITION_VALUES = [
   { value: 'bottom', label: 'Bottom' },
 ];
 
-export function StimulusPanel({ node }:any) {
+export function StimulusPanel({ node, isActive, onResponseCollected }:any) {
   const { updateNodeData, handleFileUpload } = useFlowStore();
   const [duration, setDuration] = useState(node.data.duration);
   const [position, setPosition] = useState(node.data.position || "center");
@@ -47,7 +48,6 @@ export function StimulusPanel({ node }:any) {
             type="file"
             accept="image/*"
             onChange={(e) => handleFileUpload(e, node.id, "image")}
-  
           />
           <Button
             size="sm"
@@ -95,6 +95,15 @@ export function StimulusPanel({ node }:any) {
         onPositionChange={handlePositionChange}
         positionOptions={POSITION_VALUES}
         label="Image Position"
+      />
+      
+      {/* Add Response Collection component */}
+      <ResponseCollection 
+        nodeId={node.id} 
+        nodeData={node.data} 
+        updateNodeData={updateNodeData}
+        isActive={isActive}
+        onResponseCollected={onResponseCollected}
       />
     </div>
   );

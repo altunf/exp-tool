@@ -473,4 +473,9 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
       return { currentRunningNodeIndex: nextIndex };
     });
   },
+  removeEdge: (edgeId: string) => {
+    set((state) => ({
+      edges: state.edges.filter((edge) => edge.id !== edgeId),
+    }));
+  },
 }));

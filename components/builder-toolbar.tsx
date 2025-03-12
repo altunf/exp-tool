@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Save, Play, ArrowLeft, Settings, FileUp } from "lucide-react";
+import { Save, Play, ArrowLeft, Settings, FileUp, FileJson } from "lucide-react";
 import Link from "next/link";
 import { Label } from "@/components/ui/label";
 import {
@@ -59,7 +59,7 @@ export function BuilderToolbar({
               }
             }}
           />
-          <FileUp className="mr-1 h-4 w-4" /> Load
+          <FileJson className="mr-1 h-4 w-4" /> Load File
         </label>
       </Button>
       <Button onClick={handleStartExperiment}>

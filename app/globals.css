@@ -124,3 +124,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+/* Edge button styles */
+.nodrag {
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.nopan {
+  pointer-events: all;
+}

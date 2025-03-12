@@ -8,8 +8,9 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Button } from "@/components/ui/button"
 import { useFlowStore } from "@/store/use-flow-store"
+import { ResponseCollection } from "@/components/response-collection"
 
-export function SoundPanel({ node }:any) {
+export function SoundPanel({ node, isActive, onResponseCollected }:any) {
   const { updateNodeData, handleFileUpload } = useFlowStore()
   const [delay, setDelay] = useState(node.data.delay || 0)
   const [duration, setDuration] = useState(node.data.duration)
@@ -98,6 +99,15 @@ export function SoundPanel({ node }:any) {
         />
         <Label htmlFor="loop">Loop audio</Label>
       </div>
+      
+      {/* Add Response Collection component with isActive and onResponseCollected props */}
+      <ResponseCollection 
+        nodeId={node.id} 
+        nodeData={node.data} 
+        updateNodeData={updateNodeData}
+        isActive={isActive}
+        onResponseCollected={onResponseCollected}
+      />
     </div>
   )
 }
