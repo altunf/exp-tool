@@ -8,7 +8,6 @@ import {
 import type { FlowStore } from "@/types/store-types";
 import type { ExperimentNode, ExperimentNodeData } from "@/types/node-types";
 
-// Add this interface for the adjacency list
 interface AdjacencyList {
   [key: string]: string[];
 }
@@ -248,85 +247,91 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
   // Simplified sequence-related functions
   getSequenceChildNodes: (sequenceId: string) => {
     const { nodes, edges } = get();
-    return nodes.filter(node => 
-      edges.some(edge => 
-        edge.source === sequenceId && 
-        edge.sourceHandle === 'bottom' && 
-        edge.target === node.id
+    return nodes.filter((node) =>
+      edges.some(
+        (edge) =>
+          edge.source === sequenceId &&
+          edge.sourceHandle === "bottom" &&
+          edge.target === node.id
       )
     );
   },
-  
+
   getNodeGroups: () => {
     const { nodes, edges } = get();
-    
-    // First, find all sequence nodes
-    const sequenceNodes = nodes.filter(node => node.type === 'sequence');
-    
-    // If no sequence nodes, use simplified logic
+    // Type assertion to avoid TypeScript error
+    const sequenceNodes = nodes.filter((node) => node.type === "sequence" as ExperimentNode["type"]);
+
     if (sequenceNodes.length === 0) {
-      // Just return each node as its own group
-      return nodes.map(node => [node]);
+      return nodes.map((node) => [node]);
     }
-    
+
     // Create a map for quick node lookup
-    const nodeMap = new Map(nodes.map(node => [node.id, node]));
-    
+    const nodeMap = new Map(nodes.map((node) => [node.id, node]));
+
     // Create adjacency list for horizontal connections between sequence nodes
     const sequenceAdjacencyList: AdjacencyList = {};
-    edges.forEach(edge => {
+    edges.forEach((edge) => {
       const sourceNode = nodeMap.get(edge.source);
       const targetNode = nodeMap.get(edge.target);
-      
+
       // Only consider horizontal connections between sequence nodes
-      if (sourceNode?.type === 'sequence' && targetNode?.type === 'sequence' && 
-          (edge.sourceHandle === 'right' || edge.targetHandle === 'left')) {
+      if (
+        sourceNode?.type === "sequence" as ExperimentNode["type"]&&
+        targetNode?.type === "sequence" as ExperimentNode["type"] &&
+        (edge.sourceHandle === "right" || edge.targetHandle === "left")
+      ) {
         if (!sequenceAdjacencyList[edge.source]) {
           sequenceAdjacencyList[edge.source] = [];
         }
         sequenceAdjacencyList[edge.source].push(edge.target);
       }
     });
-    
+
     // Find starting sequence nodes
-    const startSequenceNodes = sequenceNodes.filter(node => 
-      !edges.some(edge => 
-        edge.target === node.id && 
-        nodeMap.get(edge.source)?.type === 'sequence' &&
-        (edge.sourceHandle === 'right' || edge.targetHandle === 'left')
-      )
+    const startSequenceNodes = sequenceNodes.filter(
+      (node) =>
+        !edges.some(
+          (edge) =>
+            edge.target === node.id &&
+            nodeMap.get(edge.source)?.type === "sequence" as ExperimentNode["type"]&&
+            (edge.sourceHandle === "right" || edge.targetHandle === "left")
+        )
     );
-    
-    const startingPoints = startSequenceNodes.length > 0 ? 
-      startSequenceNodes : 
-      (sequenceNodes.length > 0 ? [sequenceNodes[0]] : []);
-    
+
+    const startingPoints =
+      startSequenceNodes.length > 0
+        ? startSequenceNodes
+        : sequenceNodes.length > 0
+        ? [sequenceNodes[0]]
+        : [];
+
     // Process sequence nodes in horizontal order
     const sequentialGroups: ExperimentNode[][] = [];
     const visited = new Set<string>();
-    
+
     const processSequenceChain = (startNodeId: string) => {
       let currentNodeId: string | null = startNodeId;
-      
+
       while (currentNodeId) {
         if (visited.has(currentNodeId)) break;
         visited.add(currentNodeId);
-        
+
         // Get the current sequence node
         const sequenceNode = nodeMap.get(currentNodeId);
         if (!sequenceNode) break;
-        
+
         // Get all child nodes of this sequence node
         const childNodes = get().getSequenceChildNodes(currentNodeId);
-        
+
         // Add this group to the sequential groups only if it has children
         if (childNodes.length > 0) {
           sequentialGroups.push(childNodes);
         }
-        
+
         // Find the next sequence node in the chain
         let nextNodeId: string | null = null;
-        
+
         if (sequenceAdjacencyList[currentNodeId]) {
           for (const targetId of sequenceAdjacencyList[currentNodeId]) {
             if (!visited.has(targetId)) {
@@ -335,20 +340,20 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
             }
           }
         }
-        
+
         currentNodeId = nextNodeId;
       }
     };
-    
+
     // Process each starting sequence node
-    startingPoints.forEach(node => {
+    startingPoints.forEach((node) => {
       if (!visited.has(node.id)) {
         processSequenceChain(node.id);
       }
     });
-    
+
     // Handle any disconnected sequence nodes
-    sequenceNodes.forEach(node => {
+    sequenceNodes.forEach((node) => {
       if (!visited.has(node.id)) {
         const childNodes = get().getSequenceChildNodes(node.id);
         if (childNodes.length > 0) {
@@ -357,22 +362,26 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
         visited.add(node.id);
       }
     });
-    
+
     // Handle any nodes not connected to sequences
-    const nonSequenceNodes = nodes.filter(node => 
-      node.type !== 'sequence' && 
-      !edges.some(edge => 
-        edge.source === node.id && nodeMap.get(edge.target)?.type === 'sequence' ||
-        edge.target === node.id && nodeMap.get(edge.source)?.type === 'sequence'
-      )
+    const nonSequenceNodes = nodes.filter(
+      (node) =>
+        node.type !== "sequence" as ExperimentNode["type"] &&
+        !edges.some(
+          (edge) =>
+            (edge.source === node.id &&
+              nodeMap.get(edge.target)?.type === "sequence" as ExperimentNode["type"]) ||
+            (edge.target === node.id &&
+              nodeMap.get(edge.source)?.type === "sequence" as ExperimentNode["type"])
+        )
     );
-    
+
     if (nonSequenceNodes.length > 0) {
-      nonSequenceNodes.forEach(node => {
+      nonSequenceNodes.forEach((node) => {
         sequentialGroups.push([node]);
       });
     }
-    
+
     return sequentialGroups;
   },
 
@@ -395,7 +404,7 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
       return { currentRunningNodeIndex: nextIndex };
     });
   },
-  
+
   removeEdge: (edgeId: string) => {
     set((state) => ({
       edges: state.edges.filter((edge) => edge.id !== edgeId),

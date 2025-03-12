@@ -1,5 +1,5 @@
 "use client";
-import React, {  useMemo } from "react";
+import React from "react";
 import {
   ReactFlow,
   Controls,
@@ -11,11 +11,10 @@ import "@xyflow/react/dist/style.css";
 import { useFlowStore } from "@/store/use-flow-store";
 import CustomEdge from "./custom-edge";
 
-
-import { StimulusNode } from "./nodes/stimulus-node"
-import { SoundNode } from "./nodes/sound-node"
-import { ResponseNode } from "./nodes/response-node"
-import { InstructionNode } from "./nodes/instruction-node"
+import { StimulusNode } from "./nodes/stimulus-node";
+import { SoundNode } from "./nodes/sound-node";
+import { ResponseNode } from "./nodes/response-node";
+import { InstructionNode } from "./nodes/instruction-node";
 import { SequenceNode } from "./nodes/sequence-node";
 
 const nodeTypes = {
@@ -24,10 +23,10 @@ const nodeTypes = {
   instruction: InstructionNode,
   sound: SoundNode,
   sequence: SequenceNode,
-}
+};
 const edgeTypes = {
   custom: CustomEdge,
-}
+};
 
 export function FlowCanvas() {
   const {
@@ -40,13 +39,14 @@ export function FlowCanvas() {
     onDrop,
     onDragOver,
     setSelectedNode,
+    rightPanelOpen,
+    setRightPanelOpen,
   } = useFlowStore();
 
-
-
   const handleNodeClick = (event: React.MouseEvent, node: any) => {
-    setSelectedNode(node);
-  }
+    node.type !== "sequence" && setSelectedNode(node);
+    node.type == "sequence" && rightPanelOpen && setRightPanelOpen(false);
+  };
 
   return (
     <ReactFlow
@@ -78,4 +78,4 @@ export function FlowCanvas() {
       <Background />
     </ReactFlow>
   );
-};
+}
