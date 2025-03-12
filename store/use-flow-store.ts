@@ -206,7 +206,6 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
     }));
   },
 
-
   handleFileUpload: (event, nodeId, fileType) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -246,184 +245,90 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
     URL.revokeObjectURL(url);
   },
 
-  getOrderedNodes: () => {
+  // Simplified sequence-related functions
+  getSequenceChildNodes: (sequenceId: string) => {
     const { nodes, edges } = get();
-    const nodeMap = new Map(nodes.map((node) => [node.id, node]));
-    const visited = new Set<string>();
-    const orderedNodes: ExperimentNode[] = [];
-
-    const startNodes = nodes.filter(
-      (node) => !edges.some((edge) => edge.target === node.id)
+    return nodes.filter(node => 
+      edges.some(edge => 
+        edge.source === sequenceId && 
+        edge.sourceHandle === 'bottom' && 
+        edge.target === node.id
+      )
     );
-
-    const dfs = (nodeId: string) => {
-      if (visited.has(nodeId)) return;
-      visited.add(nodeId);
-
-      const node = nodeMap.get(nodeId);
-      if (node) orderedNodes.push(node);
-
-      const outgoingEdges = edges.filter((edge) => edge.source === nodeId);
-      outgoingEdges.forEach((edge) => {
-        dfs(edge.target);
-      });
-    };
-
-    startNodes.forEach((node) => {
-      dfs(node.id);
-    });
-
-    nodes.forEach((node) => {
-      if (!visited.has(node.id)) {
-        orderedNodes.push(node);
-      }
-    });
-
-    return orderedNodes;
   },
-
-  getParallelNodes: (currentNodeId: string) => {
-    const { nodes, edges } = get();
-    const parallelNodes: ExperimentNode[] = [];
-
-    // Aynı kaynaktan gelen edge'leri bul
-    const incomingEdges = edges.filter((edge) => edge.target === currentNodeId);
-    incomingEdges.forEach((incomingEdge) => {
-      const siblingEdges = edges.filter(
-        (edge) =>
-          edge.source === incomingEdge.source && edge.target !== currentNodeId
-      );
-      siblingEdges.forEach((siblingEdge) => {
-        const siblingNode = nodes.find(
-          (node) => node.id === siblingEdge.target
-        );
-        if (
-          siblingNode &&
-          !parallelNodes.some((node) => node.id === siblingNode.id)
-        ) {
-          parallelNodes.push(siblingNode);
-        }
-      });
-    });
-
-    // Aynı hedefe giden edge'leri bul
-    const outgoingEdges = edges.filter((edge) => edge.source === currentNodeId);
-    outgoingEdges.forEach((outgoingEdge) => {
-      const siblingEdges = edges.filter(
-        (edge) =>
-          edge.target === outgoingEdge.target && edge.source !== currentNodeId
-      );
-      siblingEdges.forEach((siblingEdge) => {
-        const siblingNode = nodes.find(
-          (node) => node.id === siblingEdge.source
-        );
-        if (
-          siblingNode &&
-          !parallelNodes.some((node) => node.id === siblingNode.id)
-        ) {
-          parallelNodes.push(siblingNode);
-        }
-      });
-    });
-
-    return parallelNodes;
-  },
-
+  
   getNodeGroups: () => {
     const { nodes, edges } = get();
     
-    // Find starting nodes (nodes with no incoming edges)
-    const startNodes = nodes.filter(node => 
-      !edges.some(edge => edge.target === node.id)
-    );
+    // First, find all sequence nodes
+    const sequenceNodes = nodes.filter(node => node.type === 'sequence');
     
-    if (startNodes.length === 0 && nodes.length > 0) {
-      // If no starting nodes but we have nodes, just use the first node
-      return [[nodes[0]]];
+    // If no sequence nodes, use simplified logic
+    if (sequenceNodes.length === 0) {
+      // Just return each node as its own group
+      return nodes.map(node => [node]);
     }
     
     // Create a map for quick node lookup
     const nodeMap = new Map(nodes.map(node => [node.id, node]));
     
-    // Create adjacency list for the graph
-    const adjacencyList: AdjacencyList = {};
+    // Create adjacency list for horizontal connections between sequence nodes
+    const sequenceAdjacencyList: AdjacencyList = {};
     edges.forEach(edge => {
-      if (!adjacencyList[edge.source]) {
-        adjacencyList[edge.source] = [];
+      const sourceNode = nodeMap.get(edge.source);
+      const targetNode = nodeMap.get(edge.target);
+      
+      // Only consider horizontal connections between sequence nodes
+      if (sourceNode?.type === 'sequence' && targetNode?.type === 'sequence' && 
+          (edge.sourceHandle === 'right' || edge.targetHandle === 'left')) {
+        if (!sequenceAdjacencyList[edge.source]) {
+          sequenceAdjacencyList[edge.source] = [];
+        }
+        sequenceAdjacencyList[edge.source].push(edge.target);
       }
-      adjacencyList[edge.source].push(edge.target);
     });
     
-    // Function to check if connection is vertical (one node above/below another)
-    const isVerticalConnection = (sourceNode: ExperimentNode, targetNode: ExperimentNode) => {
-      // Check if nodes are roughly aligned vertically (similar X, different Y)
-      const xDiff = Math.abs(sourceNode.position.x - targetNode.position.x);
-      const yDiff = Math.abs(sourceNode.position.y - targetNode.position.y);
-      
-      // If X positions are similar (nodes are aligned vertically)
-      return xDiff < 100 && yDiff > 50;
-    };
+    // Find starting sequence nodes
+    const startSequenceNodes = sequenceNodes.filter(node => 
+      !edges.some(edge => 
+        edge.target === node.id && 
+        nodeMap.get(edge.source)?.type === 'sequence' &&
+        (edge.sourceHandle === 'right' || edge.targetHandle === 'left')
+      )
+    );
     
-    // Process the graph to create sequential groups
+    const startingPoints = startSequenceNodes.length > 0 ? 
+      startSequenceNodes : 
+      (sequenceNodes.length > 0 ? [sequenceNodes[0]] : []);
+    
+    // Process sequence nodes in horizontal order
     const sequentialGroups: ExperimentNode[][] = [];
     const visited = new Set<string>();
     
-    // Process a node and its vertical connections as a group
-    const processNodeGroup = (nodeId: string) => {
-      if (visited.has(nodeId)) return null;
-      
-      const currentNode = nodeMap.get(nodeId);
-      if (!currentNode) return null;
-      
-      // Mark this node as visited
-      visited.add(nodeId);
-      
-      // This group will contain the current node and all its vertical connections
-      const group = [currentNode];
-      
-      // Find all vertically connected nodes (should run simultaneously)
-      const findVerticalConnections = (id: string) => {
-        if (!adjacencyList[id]) return;
-        
-        adjacencyList[id].forEach(targetId => {
-          if (visited.has(targetId)) return;
-          
-          const targetNode = nodeMap.get(targetId);
-          if (!targetNode) return;
-          
-          // If vertically connected, add to current group
-          if (isVerticalConnection(nodeMap.get(id)!, targetNode)) {
-            group.push(targetNode);
-            visited.add(targetId);
-            // Continue finding vertical connections from this node
-            findVerticalConnections(targetId);
-          }
-        });
-      };
-      
-      // Find all vertical connections
-      findVerticalConnections(nodeId);
-      
-      return group.length > 0 ? group : null;
-    };
-    
-    // Process nodes in horizontal sequence
-    const processHorizontalSequence = (startNodeId: string) => {
+    const processSequenceChain = (startNodeId: string) => {
       let currentNodeId: string | null = startNodeId;
       
       while (currentNodeId) {
-        // Process this node and its vertical connections as a group
-        const group = processNodeGroup(currentNodeId);
-        if (group) {
-          sequentialGroups.push(group);
+        if (visited.has(currentNodeId)) break;
+        visited.add(currentNodeId);
+        
+        // Get the current sequence node
+        const sequenceNode = nodeMap.get(currentNodeId);
+        if (!sequenceNode) break;
+        
+        // Get all child nodes of this sequence node
+        const childNodes = get().getSequenceChildNodes(currentNodeId);
+        
+        // Add this group to the sequential groups only if it has children
+        if (childNodes.length > 0) {
+          sequentialGroups.push(childNodes);
         }
         
-        // Find the next horizontal node
+        // Find the next sequence node in the chain
         let nextNodeId: string | null = null;
         
-        if (adjacencyList[currentNodeId]) {
-          // Look for any unvisited connection
-          for (const targetId of adjacencyList[currentNodeId]) {
+        if (sequenceAdjacencyList[currentNodeId]) {
+          for (const targetId of sequenceAdjacencyList[currentNodeId]) {
             if (!visited.has(targetId)) {
               nextNodeId = targetId;
               break;
@@ -435,21 +340,38 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
       }
     };
     
-    // Start processing from each start node
-    startNodes.forEach(node => {
+    // Process each starting sequence node
+    startingPoints.forEach(node => {
       if (!visited.has(node.id)) {
-        processHorizontalSequence(node.id);
+        processSequenceChain(node.id);
       }
     });
     
-    // Handle any disconnected nodes
-    nodes.forEach(node => {
+    // Handle any disconnected sequence nodes
+    sequenceNodes.forEach(node => {
       if (!visited.has(node.id)) {
-        sequentialGroups.push([node]);
+        const childNodes = get().getSequenceChildNodes(node.id);
+        if (childNodes.length > 0) {
+          sequentialGroups.push(childNodes);
+        }
         visited.add(node.id);
       }
     });
     
+    // Handle any nodes not connected to sequences
+    const nonSequenceNodes = nodes.filter(node => 
+      node.type !== 'sequence' && 
+      !edges.some(edge => 
+        edge.source === node.id && nodeMap.get(edge.target)?.type === 'sequence' ||
+        edge.target === node.id && nodeMap.get(edge.source)?.type === 'sequence'
+      )
+    );
+    
+    if (nonSequenceNodes.length > 0) {
+      nonSequenceNodes.forEach(node => {
+        sequentialGroups.push([node]);
+      });
+    }
     
     return sequentialGroups;
   },
@@ -473,6 +395,7 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
       return { currentRunningNodeIndex: nextIndex };
     });
   },
+  
   removeEdge: (edgeId: string) => {
     set((state) => ({
       edges: state.edges.filter((edge) => edge.id !== edgeId),

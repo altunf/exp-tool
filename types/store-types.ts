@@ -30,11 +30,12 @@ export interface FlowActions {
   deleteNode: (nodeId: string) => void
   handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>, nodeId: string, fileType: "image" | "audio") => void
   saveExperiment: () => void
-  getOrderedNodes: () => ExperimentNode[]
-  getParallelNodes: (currentNodeId: string) => ExperimentNode[]
+  getSequenceChildNodes: (sequenceId: string) => ExperimentNode[]
+  getNodeGroups: () => ExperimentNode[][]
   handleStartExperiment: () => void
   handleStopExperiment: () => void
   handleNextNode: () => void
+  removeEdge: (edgeId: string) => void
 }
 
 export type FlowStore = FlowState & FlowActions

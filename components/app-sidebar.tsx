@@ -50,6 +50,12 @@ const data = {
       icon: Music,
       type: "sound"
     },
+    {
+      title: "Sequence",
+      hover: "gray",
+      icon: Layers,
+      type: "sequence"
+    },
   ],
   navSecondary: [
 /*     {

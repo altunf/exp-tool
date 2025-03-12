@@ -6,7 +6,7 @@ export function ResponseNode({ data, id }:any) {
   return (
     <Card className="w-64 shadow-md p-0 overflow-hidden">
     <Handle type="target" position={Position.Top} id="top" className="w-2 h-2 !bg-blue-500" />
-    <Handle type="target" position={Position.Left} id="left" className="w-2 h-2 !bg-green-500" />
+  
       <CardHeader className="bg-green-100 p-3">
         <CardTitle className="text-sm flex items-center gap-2">
           <MessageSquare size={16} />
@@ -22,8 +22,8 @@ export function ResponseNode({ data, id }:any) {
             <p>Correct response: {data.correctResponse || "None"}</p>
           </div>
         </div>
-      </CardContent>   <Handle type="source" position={Position.Right} id="right" className="w-2 h-2 !bg-green-500" />
-      <Handle type="source" position={Position.Bottom} id="bottom" className="w-2 h-2 !bg-blue-500" />
+      </CardContent>  
+  
     </Card>
   )
 }

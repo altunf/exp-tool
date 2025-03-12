@@ -29,60 +29,65 @@ export function ExperimentRunner({ onStop }) {
     setBgColor(runnerBackgroundColor)
   }, [runnerBackgroundColor])
 
-  // Handle timing for the current group of nodes
+  // Update the useEffect that handles timing for the current group of nodes
   useEffect(() => {
     if (isPaused) return;
     if (currentGroup.length === 0) {
-      // If the current group is empty, move to the next one
-      setTimeout(() => handleNextNode(), 100);
-      return;
-    }
+    // If the current group is empty, move to the next one
+    setTimeout(() => handleNextNode(), 100);
+    return;
+  }
 
-    // Clear any existing interval
-    if (intervalId) {
-      clearInterval(intervalId)
-      setIntervalId(null)
-    }
+  // Clear any existing interval
+  if (intervalId) {
+    clearInterval(intervalId)
+    setIntervalId(null)
+  }
 
-    // Find the maximum duration among all nodes in the current group
-    const maxDuration = Math.max(
-      ...currentGroup.map((node) => {
-        if (!node) return 1000; // Default if node is undefined
-        
-        if (node.type === "stimulus" || node.type === "sound" || node.type === "group") {
-          return node.data?.duration || 1000; // Default to 1000ms if not specified
-        } else if (node.type === "response") {
-          return node.data?.timeout || 5000; // Default to 5000ms if not specified
-        } else if (node.type === "instruction" && !node.data?.showContinueButton) {
-          return node.data?.duration || 3000; // Default to 3000ms for instructions
-        }
-        return 1000; // Default duration
-      }),
-      1000 // Ensure at least 1000ms minimum duration
-    );
+  // Find the maximum duration among all nodes in the current group
+  const maxDuration = Math.max(
+    ...currentGroup.map((node) => {
+      if (!node) return 1000; // Default if node is undefined
+      
+      // Check if this is a sequence node
+      if (node.type === "sequence") {
+        // For sequence nodes, use a default duration
+        return node.data?.duration || 1000;
+      }
+      else if (node.type === "stimulus" || node.type === "sound" || node.type === "group") {
+        return node.data?.duration || 1000; // Default to 1000ms if not specified
+      } else if (node.type === "response") {
+        return node.data?.timeout || 5000; // Default to 5000ms if not specified
+      } else if (node.type === "instruction" && !node.data?.showContinueButton) {
+        return node.data?.duration || 3000; // Default to 3000ms for instructions
+      }
+      return 1000; // Default duration
+    }),
+    1000 // Ensure at least 1000ms minimum duration
+  );
 
-    setTimeRemaining(maxDuration);
+  setTimeRemaining(maxDuration);
 
-    // Use a single timeout instead of interval + safety timeout
-    const timeoutId = setTimeout(() => {
-      handleNextNode();
-    }, maxDuration);
+  // Use a single timeout instead of interval + safety timeout
+  const timeoutId = setTimeout(() => {
+    handleNextNode();
+  }, maxDuration);
 
-    setIntervalId(timeoutId);
+  setIntervalId(timeoutId);
 
-    // Update time remaining with a separate effect
-    const displayId = setInterval(() => {
-      setTimeRemaining((prev) => {
-        const newTime = prev - 100;
-        return newTime > 0 ? newTime : 0;
-      });
-    }, 100);
+  // Update time remaining with a separate effect
+  const displayId = setInterval(() => {
+    setTimeRemaining((prev) => {
+      const newTime = prev - 100;
+      return newTime > 0 ? newTime : 0;
+    });
+  }, 100);
 
-    return () => {
-      clearTimeout(timeoutId);
-      clearInterval(displayId);
-    };
-  }, [currentRunningNodeIndex, isPaused]); // Reduced dependencies
+  return () => {
+    clearTimeout(timeoutId);
+    clearInterval(displayId);
+  };
+}, [currentRunningNodeIndex, isPaused]); // Reduced dependencies
 
   // Clean up intervals when component unmounts
   useEffect(() => {
