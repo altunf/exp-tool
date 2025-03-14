@@ -1,12 +1,17 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { MessageSquare } from "lucide-react"
-import { Handle, Position } from "@xyflow/react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MessageSquare } from "lucide-react";
+import { Handle, Position } from "@xyflow/react";
 
-export function ResponseNode({ data, id }:any) {
+export function ResponseNode({ data, id }: any) {
   return (
-    <Card className="w-64 shadow-md p-0 overflow-hidden">
-    <Handle type="target" position={Position.Top} id="top" className="w-2 h-2 !bg-blue-500" />
-  
+    <div className="w-64 shadow-md p-0 overflow-hidden bg-white rounded-2xl">
+      <Handle
+        type="target"
+        position={Position.Top}
+        id="top"
+        className="w-2 h-2 !bg-blue-500"
+      />
+
       <CardHeader className="bg-green-100 p-3">
         <CardTitle className="text-sm flex items-center gap-2">
           <MessageSquare size={16} />
@@ -22,9 +27,7 @@ export function ResponseNode({ data, id }:any) {
             <p>Correct response: {data.correctResponse || "None"}</p>
           </div>
         </div>
-      </CardContent>  
-  
-    </Card>
-  )
-}
-
+      </CardContent>
+    </div>
+  );
+};

@@ -1,12 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText } from "lucide-react";
 import { Handle, Position } from "@xyflow/react";
 import { useFlowStore } from "@/store/use-flow-store";
 
 export function InstructionNode({ data, id }: any) {
-  const {runnerBackgroundColor} = useFlowStore()
+  const { runnerBackgroundColor } = useFlowStore();
   return (
-    <Card className="w-64 shadow-md p-0 overflow-hidden">
+    <div className="w-64 shadow-md p-0 overflow-hidden rounded-2xl">
       <Handle
         type="target"
         position={Position.Top}
@@ -21,15 +21,17 @@ export function InstructionNode({ data, id }: any) {
           <span className="text-xs text-gray-500 ml-auto">{id}</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-3"
-        style={{ backgroundColor: runnerBackgroundColor }}>
+      <CardContent
+        className="p-3"
+        style={{ backgroundColor: runnerBackgroundColor }}
+      >
         <div className="space-y-2">
           <div
             className="text-xs"
             style={{ color: data.textColor || "inherit" }}
           >
             {data.text ? (
-              <div 
+              <div
                 className="line-clamp-3 prose prose-sm max-w-none"
                 dangerouslySetInnerHTML={{ __html: data.text }}
               />
@@ -39,7 +41,6 @@ export function InstructionNode({ data, id }: any) {
           </div>
         </div>
       </CardContent>
-
-    </Card>
+    </div>
   );
-}
+};

@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import {
   Command,
   FileText,
@@ -11,7 +11,7 @@ import {
   Route,
   Send,
   Squirrel,
-} from "lucide-react"
+} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -20,45 +20,45 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { NodePalette } from "./panels/node-palette"
-import { NavSecondary } from "./nav-secondary"
+} from "@/components/ui/sidebar";
+import { NodePalette } from "./panels/node-palette";
+import { NavSecondary } from "./nav-secondary";
 
 const data = {
   navMain: [
     {
-      title: "Visual Stimulus",
-      hover: "blue",
-      icon: ImageIcon,
-      type: "stimulus"
-    },
-    {
-      title: "Response Collection",
-      hover: "green",
-      icon: MessageSquare,
-      type: "response"
+      title: "Sequence",
+      hover: "orange",
+      icon: Layers,
+      type: "sequence",
     },
     {
       title: "Instructions",
       hover: "purple",
       icon: FileText,
-      type: "instruction"
+      type: "instruction",
+    },
+    {
+      title: "Visual Stimulus",
+      hover: "blue",
+      icon: ImageIcon,
+      type: "stimulus",
     },
     {
       title: "Sound Stimulus",
       hover: "amber",
       icon: Music,
-      type: "sound"
+      type: "sound",
     },
     {
-      title: "Sequence",
-      hover: "gray",
-      icon: Layers,
-      type: "sequence"
+      title: "Response Collection",
+      hover: "green",
+      icon: MessageSquare,
+      type: "response",
     },
   ],
   navSecondary: [
-/*     {
+    /*     {
       title: "Support",
       url: "#",
       icon: LifeBuoy,
@@ -68,8 +68,8 @@ const data = {
       url: "mailto:altunnfirat@gmail.com",
       icon: Send,
     },
-  ]
-}
+  ],
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -84,7 +84,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Psy Exp</span>
-                  <span className="truncate text-xs">Psychological Experiment Tool</span>
+                  <span className="truncate text-xs">
+                    Psychological Experiment Tool
+                  </span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -93,10 +95,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NodePalette items={data.navMain} />
-     <NavSecondary items={data.navSecondary} className="mt-auto" /> 
+        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
-      </SidebarFooter>
+      <SidebarFooter></SidebarFooter>
     </Sidebar>
-  )
+  );
 }

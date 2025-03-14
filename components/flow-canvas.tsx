@@ -66,7 +66,7 @@ export function FlowCanvas() {
       fitView
       snapToGrid
       snapGrid={[15, 15]}
-      style={{ width: "100%", height: "100%" }}
+      style={{ backgroundColor:"#f7f9fb", width: "100%", height: "100%" }}
       defaultViewport={{ x: 0, y: 0, zoom: 1 }}
       minZoom={0.1}
       maxZoom={2}

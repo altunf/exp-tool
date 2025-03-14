@@ -6,9 +6,9 @@ import { useFlowStore } from "@/store/use-flow-store";
 export function SequenceNode({ data, id }: any) {
   const { getSequenceChildNodes } = useFlowStore();
   const childNodes = getSequenceChildNodes(id);
-  
+
   return (
-    <Card className="w-64 shadow-md p-0 overflow-hidden">
+    <div className="w-64 shadow-md p-0 overflow-hidden bg-white rounded-2xl">
       <Handle
         type="target"
         position={Position.Top}
@@ -33,10 +33,16 @@ export function SequenceNode({ data, id }: any) {
           <p>Child nodes: {childNodes.length}</p>
           {childNodes.length > 0 && (
             <div className="mt-1 text-xs">
-              {childNodes.map(node => (
-                <div key={node.id} className="truncate">{node.id}</div>
-              )).slice(0, 3)}
-              {childNodes.length > 3 && <div>+ {childNodes.length - 3} more</div>}
+              {childNodes
+                .map((node) => (
+                  <div key={node.id} className="truncate">
+                    {node.id}
+                  </div>
+                ))
+                .slice(0, 3)}
+              {childNodes.length > 3 && (
+                <div>+ {childNodes.length - 3} more</div>
+              )}
             </div>
           )}
         </div>
@@ -53,6 +59,6 @@ export function SequenceNode({ data, id }: any) {
         id="bottom"
         className="w-2 h-2 !bg-blue-500"
       />
-    </Card>
+    </div>
   );
-}
+};

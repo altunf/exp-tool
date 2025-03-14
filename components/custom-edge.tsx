@@ -1,12 +1,13 @@
-import React from 'react';
+import React from "react";
 import {
   BaseEdge,
   EdgeLabelRenderer,
   getBezierPath,
   useReactFlow,
   type EdgeProps,
-} from '@xyflow/react';
- 
+} from "@xyflow/react";
+import { CircleX } from "lucide-react";
+
 export default function CustomEdge({
   id,
   sourceX,
@@ -27,12 +28,12 @@ export default function CustomEdge({
     targetY,
     targetPosition,
   });
- 
+
   const onEdgeClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     setEdges((edges) => edges.filter((edge) => edge.id !== id));
   };
- 
+
   return (
     <>
       <BaseEdge path={edgePath} markerEnd={markerEnd} style={style} />
@@ -40,21 +41,14 @@ export default function CustomEdge({
         <div
           className="nodrag nopan"
           style={{
-            position: 'absolute',
+            position: "absolute",
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-            pointerEvents: 'all',
+            pointerEvents: "all",
           }}
         >
-          <button 
-            className="flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white cursor-pointer hover:bg-red-600 shadow-md"
-            onClick={onEdgeClick}
-            title="Remove connection"
-          >
-            ×
-          </button>
+          <CircleX color="red" onClick={onEdgeClick} />
         </div>
       </EdgeLabelRenderer>
     </>
   );
 }
-
