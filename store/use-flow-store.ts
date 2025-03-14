@@ -144,7 +144,7 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
           duration: 3000,
           delay: 0,
           volume: 80,
-          loop: false,
+          // Removed loop: false,
         } as ExperimentNodeData;
         break;
       case "group":

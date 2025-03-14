@@ -33,7 +33,7 @@ export function SoundNode({ data, id }: any) {
             <p>Duration: {data.duration}ms</p>
             <p>Delay: {data.delay || 0}ms</p>
             <p>Volume: {data.volume}%</p>
-            {data.loop && <p>Loop: Enabled</p>}
+            {/* Removed the loop display */}
           </div>
         </div>
       </CardContent>
