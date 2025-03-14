@@ -8,6 +8,8 @@ import {
   Layers,
   MessageSquare,
   Music,
+  Repeat,
+  Repeat2,
   Route,
   Send,
   Squirrel,
@@ -55,6 +57,11 @@ const data = {
       hover: "green",
       icon: MessageSquare,
       type: "response",
+    },   {
+      title: "loop",
+      hover: "cyan",
+      icon: Repeat2,
+      type: "loop",
     },
   ],
   navSecondary: [

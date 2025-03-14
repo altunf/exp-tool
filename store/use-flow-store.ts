@@ -24,7 +24,7 @@ export const useFlowStore = create<FlowStore>((set, get) => ({
   runnerBackgroundColor: "#000000",
 
   setSelectedNode: (node) =>
-    set({ selectedNode: node, rightPanelOpen: !!node }),
+  set({ selectedNode: node, rightPanelOpen: !!node }),
   setRightPanelOpen: (open) => set({ rightPanelOpen: open }),
   setReactFlowInstance: (instance) => set({ reactFlowInstance: instance }),
   setIsRunning: (isRunning) => set({ isRunning, currentRunningNodeIndex: 0 }),

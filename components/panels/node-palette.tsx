@@ -18,6 +18,7 @@ export function NodePalette({ items }: any) {
       case "amber": return "hover:bg-amber-100";
       case "purple": return "hover:bg-purple-100";
       case "orange": return "hover:bg-orange-100";
+      case "cyan": return "hover:bg-cyan-100";
       default: return "hover:bg-gray-100";
     }
   };

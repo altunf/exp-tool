@@ -16,6 +16,7 @@ import { SoundNode } from "./nodes/sound-node";
 import { ResponseNode } from "./nodes/response-node";
 import { InstructionNode } from "./nodes/instruction-node";
 import { SequenceNode } from "./nodes/sequence-node";
+import { LoopNode } from "./nodes/loop-node";
 
 const nodeTypes = {
   stimulus: StimulusNode,
@@ -23,6 +24,7 @@ const nodeTypes = {
   instruction: InstructionNode,
   sound: SoundNode,
   sequence: SequenceNode,
+  loop: LoopNode,
 };
 const edgeTypes = {
   custom: CustomEdge,

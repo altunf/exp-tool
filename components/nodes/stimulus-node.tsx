@@ -57,7 +57,7 @@ export function StimulusNode({ data, id }: any) {
           <div className="text-xs text-gray-500">
             <p>Duration: {data.duration}ms</p>
             <p>Position: {data.position || "center"}</p>
-            {data.imageName && <p>Image: {data.imageName}</p>}
+       {/*      {data.imageName && <p>Image: {data.imageName}</p>} */}
           </div>
         </div>
       </div>
