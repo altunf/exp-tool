@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { useFlowStore } from "@/store/use-flow-store";
+import RunButton  from "@/components/custom-components/RunButton";
 
 interface BuilderToolbarProps {
   experimentName: string;
@@ -62,9 +63,7 @@ export function BuilderToolbar({
           <FileJson className="mr-1 h-4 w-4" /> Load File
         </label>
       </Button>
-      <Button onClick={handleStartExperiment}>
-        <Play className="mr-1 h-4 w-4" color="green"/> Run
-      </Button>
+      <RunButton onClick={handleStartExperiment}/>
       <Button variant="outline" asChild>
         <Link href="/experiments">
           <ArrowLeft className="h-4 w-4 mr-1" /> Back to Experiments
