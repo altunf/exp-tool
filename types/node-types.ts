@@ -33,7 +33,13 @@ export interface SoundNodeData extends BaseNodeData {
   audioType?: string
 }
 
-
+export interface LoopNodeData extends BaseNodeData {
+  label: string
+  iterations: number
+  isRandom: boolean
+  interStimulusInterval: number
+  childNodes?: string[]
+}
 
 export type ExperimentNodeData = {
   [key: string]: unknown
@@ -42,9 +48,10 @@ export type ExperimentNodeData = {
   | ResponseNodeData
   | InstructionNodeData
   | SoundNodeData
+  | LoopNodeData
 )
 
 export interface ExperimentNode extends Node<ExperimentNodeData> {
-  type: "stimulus" | "response" | "instruction" | "sound" 
+  type: "stimulus" | "response" | "instruction" | "sound" | "loop"
 }
 

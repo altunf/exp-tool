@@ -1,7 +1,7 @@
 import { Handle, Position } from "@xyflow/react";
 import React from "react";
 import { CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Music, Repeat, Repeat2 } from "lucide-react";
+import { Repeat2 } from "lucide-react";
 
 export function LoopNode({ data, id }: any) {
   return (
@@ -23,17 +23,16 @@ export function LoopNode({ data, id }: any) {
       <CardContent className="p-3">
         <div className="space-y-2">
           <div className="text-xs text-gray-500">
-            <p>Duration: {data.duration}ms</p>
-            <p>Delay: {data.delay || 0}ms</p>
-            <p>Volume: {data.volume}%</p>
-            {data.loop && <p>Loop: Enabled</p>}
+            <p>Iterations: {data.iterations || 3}</p>
+            <p>Order: {data.isRandom ? "Random" : "Sequential"}</p>
+            <p>ISI: {data.interStimulusInterval || 500}ms</p>
           </div>
         </div>
       </CardContent>
       <Handle
         type="source"
         position={Position.Bottom}
-        id="top"
+        id="bottom"
         className="w-2 h-2 !bg-blue-500"
       />
     </div>

@@ -4,6 +4,7 @@ import { StimulusPanel } from "./stimulus-panel"
 import { ResponsePanel } from "./response-panel"
 import { InstructionPanel } from "./instruction-panel"
 import { SoundPanel } from "./sound-panel"
+import { LoopPanel } from './loop-panel'
 
 interface BasePanelProps {
   node: ExperimentNode;
@@ -18,6 +19,7 @@ const NODE_PANELS = {
   "response": ResponsePanel,
   "instruction": InstructionPanel,
   "sound": SoundPanel,
+  "loop": LoopPanel,
 } as const
 
 export function NodePanelRenderer({ 

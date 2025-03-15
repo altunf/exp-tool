@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { useFlowStore } from "@/store/use-flow-store";
+import { useCoreFlowStore } from "@/store/use-core-flow-store";
 import RunButton  from "@/components/custom-components/RunButton";
 
 interface BuilderToolbarProps {
@@ -48,7 +49,24 @@ export function BuilderToolbar({
                 reader.onload = (event) => {
                   try {
                     const experimentData = JSON.parse(event.target?.result as string);
-                    useFlowStore.setState(experimentData);
+                    // Validate the experiment data
+                    if (!experimentData.nodes || !Array.isArray(experimentData.nodes) ||
+                        !experimentData.edges || !Array.isArray(experimentData.edges)) {
+                      throw new Error('Invalid experiment format');
+                    }
+                    
+                    // Use the core store's setState method instead
+                    useCoreFlowStore.setState({
+                      nodes: experimentData.nodes,
+                      edges: experimentData.edges,
+                      runnerBackgroundColor: experimentData.runnerBackgroundColor || '#000000',
+                      // Reset other state
+                      isRunning: false,
+                      currentRunningNodeIndex: 0,
+                      selectedNode: null,
+                      rightPanelOpen: false
+                    });
+                    
                     setExperimentName(experimentData.experimentName || "Loaded Experiment");
                   } catch (error) {
                     console.error("Error loading experiment:", error);
